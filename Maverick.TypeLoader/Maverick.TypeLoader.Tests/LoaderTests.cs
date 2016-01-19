@@ -11,42 +11,59 @@ namespace Maverick.TypeLoader.Tests
 {
     public class LoaderTests
     {
-        private T LoadType<T>(string typeName) where T : class
+        private T LoadTypeFromInMemoryAssembly<T>(string typeName) where T : class
         {
+            // Load from this test assembly in memory
             var assembly = Assembly.Load("Maverick.TypeLoader.Tests");
             var loader = new Loader<T>();
 
             return loader.LoadImplementingTypeFromAssembly(assembly, typeName);
         }
 
+        private T LoadTypeFromDisk<T>(string typeName) where T : class
+        {
+            // Load from this assembly located on disk
+            var path = Assembly.GetExecutingAssembly().Location;
+            var loader = new Loader<T>();
+
+            return loader.LoadImplementingTypeFromFiles(new string[] {path}, typeName);
+        }
+
         [Fact]
         public void LoadImplementingTypeFromAssembly_AssemblyGiven_ReturnsType()
         {
             // Arrange
-            var type = LoadType<IMath>("AdderMath");
+            var type = LoadTypeFromInMemoryAssembly<IMath>("AdderMath");
+
+            // Assert
+            Assert.IsType<AdderMath>(type);
+        }
+        
+        [Fact]
+        public void LoadImplementingTypeFromAssembly_AssemblyGivenButNoType_ThrowsException()
+        {
+            // Arrange
+            Action loadAction = () => LoadTypeFromInMemoryAssembly<IMath>("SubtractorMath");
+
+            // Act & Assert
+            Assert.ThrowsAny<TypeLoadException>(loadAction);
+        }
+
+        [Fact]
+        public void LoadImplementingTypeFromFiles_AssemblyGiven_ReturnsType()
+        {
+            // Arrange
+            var type = LoadTypeFromDisk<IMath>("AdderMath");
 
             // Assert
             Assert.IsType<AdderMath>(type);
         }
 
         [Fact]
-        public void LoadImplementingTypeFromAssembly_AssemblyGiven_TypeWorks()
+        public void LoadImplementingTypeFromFiles_AssemblyGivenButNoType_ThrowsException()
         {
             // Arrange
-            var type = LoadType<IMath>("AdderMath");
-
-            // Act
-            var result = type.Add(1, 2);
-
-            // Assert
-            Assert.Equal(3, result);
-        }
-
-        [Fact]
-        public void LoadImplementingTypeFromAssembly_AssemblyGivenButNoType_ThrowsException()
-        {
-            // Arrange
-            Action loadAction = () => LoadType<IMath>("SubtractorMath");
+            Action loadAction = () => LoadTypeFromDisk<IMath>("SubtractorMath");
 
             // Act & Assert
             Assert.ThrowsAny<TypeLoadException>(loadAction);
