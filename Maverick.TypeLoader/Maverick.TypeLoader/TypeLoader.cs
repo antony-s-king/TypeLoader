@@ -5,8 +5,18 @@ using System.Reflection;
 
 namespace Maverick.TypeLoader
 {
+    /// <summary>
+    /// A class to load types from assemblies on disk that inherit / implement the specified base type of T 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class TypeLoader<T> where T: class
     {
+        /// <summary>
+        /// Creates an instance of the specified typeName if found in an assembly in the list of fileNames. The type must have a default constructor. 
+        /// </summary>
+        /// <param name="fileNames"></param>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
         public T LoadImplementingTypeFromFiles(IEnumerable<string> fileNames, string typeName)
         {
             var implementingTypes = FindImplementingTypesInMultipleFiles(fileNames);
