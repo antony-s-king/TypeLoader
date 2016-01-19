@@ -37,8 +37,15 @@ namespace Maverick.TypeLoader
 
         private Type SelectTypeFromListFound(string typeName, IEnumerable<Type> implementingTypes)
         {
-            var typeFound = implementingTypes.First(t => t.Name == typeName);
-            return typeFound;
+            try
+            {
+                var typeFound = implementingTypes.First(t => t.Name == typeName);
+                return typeFound;
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new TypeLoadException($"Type '{typeName}' not found ", ex);
+            }
         }
 
         private IEnumerable<Type> FindImplementingTypesInMultipleFiles(IEnumerable<string> fileNames)
