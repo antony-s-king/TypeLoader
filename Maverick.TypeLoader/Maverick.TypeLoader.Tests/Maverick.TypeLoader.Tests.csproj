@@ -81,12 +81,20 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="TypeLoaderTests.cs" />
+    <Compile Include="LoaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestCase\AdderMath.cs" />
+    <Compile Include="TestCase\IMath.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Maverick.TypeLoader\Maverick.TypeLoader.csproj">
+      <Project>{8b1fe6c8-e38c-4a62-a1d3-2e9edbab8a53}</Project>
+      <Name>Maverick.TypeLoader</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

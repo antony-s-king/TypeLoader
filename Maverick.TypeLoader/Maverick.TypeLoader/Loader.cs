@@ -9,7 +9,7 @@ namespace Maverick.TypeLoader
     /// A class to load types from assemblies on disk that inherit / implement the specified base type of T
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class TypeLoader<T> where T : class
+    public class Loader<T> where T : class
     {
         /// <summary>
         /// Creates an instance of the specified typeName if found in an assembly in the list of fileNames. The type must have a default constructor.
@@ -19,12 +19,23 @@ namespace Maverick.TypeLoader
         /// <returns></returns>
         public T LoadImplementingTypeFromFiles(IEnumerable<string> fileNames, string typeName)
         {
-            var implementingTypes = FindImplementingTypesInMultipleFiles(fileNames);
-            var typeFound = SelectTypeFromListFound(typeName, implementingTypes);
+            var types = FindImplementingTypesInMultipleFiles(fileNames);
+            return CreateTypeInstance(types, typeName);
+        }
+
+        public T LoadImplementingTypeFromAssembly(Assembly assembly, string typeName)
+        {
+            var types = FindImplementingTypesInAssembly(assembly);
+            return CreateTypeInstance(types, typeName);
+        }
+
+        private T CreateTypeInstance(IEnumerable<Type> types, string typeName)
+        {
+            var typeFound = SelectTypeFromListFound(typeName, types);
             return (T)Activator.CreateInstance(typeFound.Assembly.FullName, typeFound.FullName).Unwrap();
         }
 
-        private static Type SelectTypeFromListFound(string typeName, IEnumerable<Type> implementingTypes)
+        private Type SelectTypeFromListFound(string typeName, IEnumerable<Type> implementingTypes)
         {
             var typeFound = implementingTypes.First(t => t.Name == typeName);
             return typeFound;
@@ -45,6 +56,12 @@ namespace Maverick.TypeLoader
         {
             return Assembly.LoadFile(assemblyFileName)
                            .GetExportedTypes()
+                           .Where(t => typeof(T).IsAssignableFrom(t));
+        }
+
+        private IEnumerable<Type> FindImplementingTypesInAssembly(Assembly assembly)
+        {
+            return assembly.GetExportedTypes()
                            .Where(t => typeof(T).IsAssignableFrom(t));
         }
     }
