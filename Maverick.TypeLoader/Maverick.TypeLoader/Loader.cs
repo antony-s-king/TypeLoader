@@ -53,17 +53,11 @@ namespace Maverick.TypeLoader
             var implementingTypes = new List<Type>();
             foreach (var file in fileNames)
             {
-                var typesFound = FindImplementingTypesInSingleFile(file).ToArray();
-                implementingTypes.AddRange(typesFound);
+                var assembly = Assembly.LoadFile(file);
+                var types = FindImplementingTypesInAssembly(assembly);
+                implementingTypes.AddRange(types);
             }
             return implementingTypes;
-        }
-
-        private IEnumerable<Type> FindImplementingTypesInSingleFile(string assemblyFileName)
-        {
-            return Assembly.LoadFile(assemblyFileName)
-                           .GetExportedTypes()
-                           .Where(t => typeof(T).IsAssignableFrom(t));
         }
 
         private IEnumerable<Type> FindImplementingTypesInAssembly(Assembly assembly)
