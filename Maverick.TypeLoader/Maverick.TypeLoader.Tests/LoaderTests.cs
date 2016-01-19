@@ -9,7 +9,7 @@ using Xunit.Sdk;
 
 namespace Maverick.TypeLoader.Tests
 {
-    public class LoaderTests
+    public class LoadTypeFromAssembly
     {
         private T LoadTypeFromInMemoryAssembly<T>(string typeName) where T : class
         {
@@ -17,20 +17,11 @@ namespace Maverick.TypeLoader.Tests
             var assembly = Assembly.Load("Maverick.TypeLoader.Tests");
             var loader = new Loader<T>();
 
-            return loader.LoadImplementingTypeFromAssembly(assembly, typeName);
+            return loader.LoadTypeFromAssembly(assembly, typeName);
         }
-
-        private T LoadTypeFromDisk<T>(string typeName) where T : class
-        {
-            // Load from this assembly located on disk
-            var path = Assembly.GetExecutingAssembly().Location;
-            var loader = new Loader<T>();
-
-            return loader.LoadImplementingTypeFromFiles(new string[] {path}, typeName);
-        }
-
+        
         [Fact]
-        public void LoadImplementingTypeFromAssembly_AssemblyGiven_ReturnsType()
+        public void ValidType_ReturnsType()
         {
             // Arrange
             var type = LoadTypeFromInMemoryAssembly<IMath>("AdderMath");
@@ -40,7 +31,7 @@ namespace Maverick.TypeLoader.Tests
         }
         
         [Fact]
-        public void LoadImplementingTypeFromAssembly_AssemblyGivenButNoType_ThrowsException()
+        public void NoType_ThrowsException()
         {
             // Arrange
             Action loadAction = () => LoadTypeFromInMemoryAssembly<IMath>("SubtractorMath");
@@ -48,9 +39,21 @@ namespace Maverick.TypeLoader.Tests
             // Act & Assert
             Assert.ThrowsAny<TypeLoadException>(loadAction);
         }
+    }
+    
+    public class LoadTypeFromFiles
+    {
+        private T LoadTypeFromDisk<T>(string typeName) where T : class
+        {
+            // Load from this assembly located on disk
+            var path = Assembly.GetExecutingAssembly().Location;
+            var loader = new Loader<T>();
+
+            return loader.LoadTypeFromFiles(new[] { path }, typeName);
+        }
 
         [Fact]
-        public void LoadImplementingTypeFromFiles_AssemblyGiven_ReturnsType()
+        public void ValidType_ReturnsType()
         {
             // Arrange
             var type = LoadTypeFromDisk<IMath>("AdderMath");
@@ -60,7 +63,7 @@ namespace Maverick.TypeLoader.Tests
         }
 
         [Fact]
-        public void LoadImplementingTypeFromFiles_AssemblyGivenButNoType_ThrowsException()
+        public void NoType_ThrowsException()
         {
             // Arrange
             Action loadAction = () => LoadTypeFromDisk<IMath>("SubtractorMath");

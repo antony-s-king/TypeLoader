@@ -6,7 +6,9 @@ using System.Reflection;
 namespace Maverick.TypeLoader
 {
     /// <summary>
-    /// A class to load types from assemblies on disk that inherit / implement the specified base type of T
+    /// A class to load types from assemblies on disk or in memory that inherit / implement the specified base type of T.
+    /// The loading is not statically typed to prevent the caller from inheriting a dependncny on an actual Type and thus
+    /// allowing dynamic loading of any class inheriting / implementing the specified type T
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class Loader<T> where T : class
@@ -17,13 +19,13 @@ namespace Maverick.TypeLoader
         /// <param name="fileNames"></param>
         /// <param name="typeName"></param>
         /// <returns></returns>
-        public T LoadImplementingTypeFromFiles(IEnumerable<string> fileNames, string typeName)
+        public T LoadTypeFromFiles(IEnumerable<string> fileNames, string typeName)
         {
             var types = FindImplementingTypesInMultipleFiles(fileNames);
             return CreateTypeInstance(types, typeName);
         }
 
-        public T LoadImplementingTypeFromAssembly(Assembly assembly, string typeName)
+        public T LoadTypeFromAssembly(Assembly assembly, string typeName)
         {
             var types = FindImplementingTypesInAssembly(assembly);
             return CreateTypeInstance(types, typeName);
