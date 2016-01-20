@@ -11,65 +11,51 @@ namespace Maverick.TypeLoader.Tests
 {
     public class LoadTypeFromAssembly
     {
-        private T LoadTypeFromInMemoryAssembly<T>(string typeName) where T : class
-        {
-            // Load from this test assembly in memory
-            var assembly = Assembly.Load("Maverick.TypeLoader.Tests");
-            var loader = new Loader<T>();
-
-            return loader.LoadTypeFromAssembly(assembly, typeName);
-        }
-        
-        [Fact]
-        public void ValidType_ReturnsType()
-        {
-            // Arrange
-            var type = LoadTypeFromInMemoryAssembly<IMath>("AdderMath");
-
-            // Assert
-            Assert.IsType<AdderMath>(type);
-        }
-        
         [Fact]
         public void NoType_ThrowsException()
         {
-            // Arrange
-            Action loadAction = () => LoadTypeFromInMemoryAssembly<IMath>("SubtractorMath");
+            var assembly = Assembly.Load("Maverick.TypeLoader.Tests");
+            var loader = new Loader<IMath>();
+            Action loadAction = () => loader.LoadTypeFromAssembly(assembly, "SubtractorMath");
 
             // Act & Assert
             Assert.ThrowsAny<TypeLoadException>(loadAction);
+        }
+
+        [Fact]
+        public void ValidType_ReturnsType()
+        {
+            var assembly = Assembly.Load("Maverick.TypeLoader.Tests");
+            var loader = new Loader<IMath>();
+            var type = loader.LoadTypeFromAssembly(assembly, "AdderMath");
+
+            // Assert
+            Assert.IsType<AdderMath>(type);
         }
     }
     
     public class LoadTypeFromFiles
     {
-        private T LoadTypeFromDisk<T>(string typeName) where T : class
+        [Fact]
+        public void NoType_ThrowsException()
         {
-            // Load from this assembly located on disk
             var path = Assembly.GetExecutingAssembly().Location;
-            var loader = new Loader<T>();
+            var loader = new Loader<IMath>();
+            Action loadAction = () => loader.LoadTypeFromFiles(new[] { path }, "SubtractorMath");
 
-            return loader.LoadTypeFromFiles(new[] { path }, typeName);
+            // Act & Assert
+            Assert.ThrowsAny<TypeLoadException>(loadAction);
         }
 
         [Fact]
         public void ValidType_ReturnsType()
         {
-            // Arrange
-            var type = LoadTypeFromDisk<IMath>("AdderMath");
+            var path = Assembly.GetExecutingAssembly().Location;
+            var loader = new Loader<IMath>();
+            var type = loader.LoadTypeFromFiles(new[] { path }, "AdderMath");
 
             // Assert
             Assert.IsType<AdderMath>(type);
-        }
-
-        [Fact]
-        public void NoType_ThrowsException()
-        {
-            // Arrange
-            Action loadAction = () => LoadTypeFromDisk<IMath>("SubtractorMath");
-
-            // Act & Assert
-            Assert.ThrowsAny<TypeLoadException>(loadAction);
         }
     }
 }
