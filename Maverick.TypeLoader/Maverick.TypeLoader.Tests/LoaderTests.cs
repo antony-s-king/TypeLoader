@@ -16,7 +16,7 @@ namespace Maverick.TypeLoader.Tests
         {
             var assembly = Assembly.Load("Maverick.TypeLoader.Tests");
             var loader = new Loader<IMath>();
-            Action loadAction = () => loader.LoadTypeFromAssembly(assembly, "SubtractorMath");
+            void loadAction() => loader.LoadTypeFromAssembly(assembly, "SubtractorMath");
 
             // Act & Assert
             Assert.ThrowsAny<TypeLoadException>(loadAction);
@@ -41,7 +41,7 @@ namespace Maverick.TypeLoader.Tests
         {
             var path = Assembly.GetExecutingAssembly().Location;
             var loader = new Loader<IMath>();
-            Action loadAction = () => loader.LoadTypeFromFiles(new[] { path }, "SubtractorMath");
+            void loadAction() => loader.LoadTypeFromFiles(new[] { path }, "SubtractorMath");
 
             // Act & Assert
             Assert.ThrowsAny<TypeLoadException>(loadAction);
